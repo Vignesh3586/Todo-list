@@ -1,0 +1,19 @@
+{
+  "activities": [
+    {
+      "id": "1",
+      "checked": false,
+      "description": "Earn money"
+    },
+    {
+      "id": "2",
+      "checked": false,
+      "description": "Grow money"
+    },
+    {
+      "id": "3",
+      "checked": false,
+      "description": "Give Money"
+    }
+  ]
+}
