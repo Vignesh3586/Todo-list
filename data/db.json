@@ -6,14 +6,9 @@
       "description": "Earn money"
     },
     {
-      "id": "2",
-      "checked": false,
-      "description": "Grow money"
-    },
-    {
-      "id": "3",
-      "checked": false,
-      "description": "Give Money"
+      "id": "4",
+      "checked": true,
+      "description": "give"
     }
   ]
 }

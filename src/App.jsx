@@ -10,7 +10,7 @@ function App() {
   const [activities, setActivities] = useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const API_URL = 'https://json-server-todolist-alpha.vercel.app/db.json';
+  const API_URL = 'https://json-server-todolist-alpha.vercel.app/';
   const [addItem, setAddItem] = useState("");
   const [searchItem, setSearchItem] = useState("");
   const styledHeader={
