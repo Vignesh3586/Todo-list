@@ -2,10 +2,10 @@
   "name": "json-server",
   "private": true,
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "index.cjs",
   "type": "module",
   "scripts": {
-    "start": "npx json-server -p 3500 data/db.json",
+    "start": "node index.cjs",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
