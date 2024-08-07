@@ -10,7 +10,7 @@ function App() {
   const [activities, setActivities] = useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const API_URL = 'https://json-server-todolist-alpha.vercel.app/db.json';
+  const URL="https://json-server-todolist-alpha.vercel.app/api/activities";
   const [addItem, setAddItem] = useState("");
   const [searchItem, setSearchItem] = useState("");
   const styledHeader={
@@ -22,9 +22,10 @@ function App() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(URL);
         if (!response.ok) throw Error("Data Not Received");
-        const listItems = await response.json();
+        const data = await response.json();
+        const listItems = data.activities || [];
         setActivities(listItems);
       }catch (err) {
         setFetchError(err.message);
@@ -32,13 +33,17 @@ function App() {
         setIsLoading(false);
       }
       };
-      setTimeout(() => {
-      (async () => { await fetchItems() })();
-      }, 2000);
+      setTimeout(async()=>{
+        await fetchItems() ;
+      },2000)
+
   }, []);
+  const filter=activities.filter((activity) =>
+    activity.description.toLowerCase().includes(searchItem.toLowerCase()) )
+  console.log(filter)
 
   const handleChange = async (id) => {
-    const listItems = activities.map((activity) =>
+    const listItems =activities.map((activity) =>
     activity.id === id ? { ...activity, checked: !activity.checked } : activity);
     setActivities(listItems);
     const listActivities = listItems.filter((activity) => activity.id === id);
@@ -47,7 +52,7 @@ function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ checked: listActivities[0].checked })
     };
-    const reqURL = `${API_URL}/${id}`;
+    const reqURL = `${URL}/${Number(id)}`;
     const request = await apiRequest(reqURL, updateOptions);
     if (request) setFetchError(request);
   };
@@ -57,7 +62,7 @@ function App() {
     const deleteOptions = {
       method: 'DELETE'
     };
-    const reqURL = `${API_URL}/${Number(id)}`;
+    const reqURL = `${URL}/${Number(id)}`;
     const request = await apiRequest(reqURL, deleteOptions);
     if (!request) {
       const listActivities = activities.filter((activity) => activity.id !== id);
@@ -78,7 +83,7 @@ function App() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(addActivity)
     };
-    const request = await apiRequest(API_URL, postOptions);
+    const request = await apiRequest(URL, postOptions);
     if (request) setFetchError(request);
   };
 
@@ -109,8 +114,7 @@ function App() {
         {isLoading && <p style={styledHeader}>Loading Items.....</p>}
         {!isLoading && !fetchError &&
           <Content
-            activities={activities.filter((activity) =>
-            activity.description.toLowerCase().includes(searchItem.toLowerCase()) )}
+            activities={filter}
             handleChange={handleChange}
             handleDelete={handleDelete}
             styledHeader={styledHeader}
