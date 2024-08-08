@@ -4,87 +4,66 @@ import AddItem from './AddItem';
 import SearchItem from './SearchItem';
 import Content from './ContentItem';
 import { useState, useEffect } from 'react';
-import apiRequest from './ApiRequst';
 
 function App() {
   const [activities, setActivities] = useState([]);
   const [fetchError, setFetchError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const URL="https://json-server-todolist-alpha.vercel.app/api/activities";
   const [addItem, setAddItem] = useState("");
   const [searchItem, setSearchItem] = useState("");
-  const styledHeader={
-    display:"grid",
-    placeContent:"center",
-    marginTop:"15rem"
-  }
+  const styledHeader = {
+    display: "grid",
+    placeContent: "center",
+    marginTop: "15rem"
+  };
 
+  // Load items from local storage
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch(URL);
-        if (!response.ok) throw Error("Data Not Received");
-        const data = await response.json();
-        const listItems = data.activities || [];
-        setActivities(listItems);
-      }catch (err) {
+        const data = JSON.parse(localStorage.getItem('activities')) || [];
+        setActivities(data);
+      } catch (err) {
         setFetchError(err.message);
-      }finally {
+      } finally {
         setIsLoading(false);
       }
-      };
-      setTimeout(async()=>{
-        await fetchItems() ;
-      },2000)
-
+    };
+    setTimeout(async () => {
+      await fetchItems();
+    }, 1000);
   }, []);
-  const filter=activities.filter((activity) =>
-    activity.description.toLowerCase().includes(searchItem.toLowerCase()) )
-  console.log(filter)
 
-  const handleChange = async (id) => {
-    const listItems =activities.map((activity) =>
-    activity.id === id ? { ...activity, checked: !activity.checked } : activity);
+  // Filter activities based on search term
+  const filter = activities.filter((activity) =>
+    activity.description.toLowerCase().includes(searchItem.toLowerCase())
+  );
+
+  // Save items to local storage
+  const saveToLocalStorage = (items) => {
+    localStorage.setItem('activities', JSON.stringify(items));
+  };
+
+  const handleChange = (id) => {
+    const listItems = activities.map((activity) =>
+      activity.id === id ? { ...activity, checked: !activity.checked } : activity
+    );
     setActivities(listItems);
-    const listActivities = listItems.filter((activity) => activity.id === id);
-    const updateOptions = {
-      method: 'PATCH',
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checked: listActivities[0].checked })
-    };
-    const reqURL = `${URL}/${Number(id)}`;
-    const request = await apiRequest(reqURL, updateOptions);
-    if (request) setFetchError(request);
+    saveToLocalStorage(listItems);
   };
 
-  const handleDelete = async (id) => {
-    console.log(`Attempting to delete activity with ID: ${id}`);
-    const deleteOptions = {
-      method: 'DELETE'
-    };
-    const reqURL = `${URL}/${Number(id)}`;
-    const request = await apiRequest(reqURL, deleteOptions);
-    if (!request) {
-      const listActivities = activities.filter((activity) => activity.id !== id);
-      setActivities(listActivities);
-      console.log(`Deleted activity with ID: ${id}`);
-    } else {
-      setFetchError(request);
-    }
-  };
-
-  const handleAdd = async (item) => {
-    let id = (activities.length) ? String(Number(activities.length) + 1) :"1";
-    let addActivity = { id, checked: false, description: item };
-    let listActivities = [...activities, addActivity];
+  const handleDelete = (id) => {
+    const listActivities = activities.filter((activity) => activity.id !== id);
     setActivities(listActivities);
-    const postOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(addActivity)
-    };
-    const request = await apiRequest(URL, postOptions);
-    if (request) setFetchError(request);
+    saveToLocalStorage(listActivities);
+  };
+
+  const handleAdd = (item) => {
+    const id = (activities.length) ? String(Number(activities.length) + 1) : "1";
+    const addActivity = { id, checked: false, description: item };
+    const listActivities = [...activities, addActivity];
+    setActivities(listActivities);
+    saveToLocalStorage(listActivities);
   };
 
   const handleSubmit = (e) => {
@@ -93,7 +72,6 @@ function App() {
     handleAdd(addItem);
     setAddItem("");
   };
-
 
   return (
     <>
@@ -118,7 +96,7 @@ function App() {
             handleChange={handleChange}
             handleDelete={handleDelete}
             styledHeader={styledHeader}
-         />}
+          />}
       </main>
       <Footer length={activities.length} />
     </>
